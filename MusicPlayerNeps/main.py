@@ -14,21 +14,29 @@ estado = "Pausado"
 
 def carregar_musicas():
     global ordem_musicas
-    with open("songs.csv", newline='', encoding='utf-8') as f:
-        reader = csv.reader(f)
-        next(reader)
-        for linha in reader:
-            if len(linha) != 3:
-                print(f"Linha inválida ignorada: {linha}")
-                continue
-            titulo, artista, duracao = linha
-            try:
-                duracao = int(duracao)
-            except:
-                print(f"Linha inválida ignorada: {linha}")
-                continue
-            biblioteca[titulo] = (artista, duracao)
-            ordem_musicas.append(titulo)
+    try:
+        with open("songs.csv", newline='', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            next(reader)
+
+            for linha in reader:
+                if len(linha) != 3:
+                    print(f"Linha inválida ignorada: {linha}")
+                    continue
+
+                titulo, artista, duracao = linha
+
+                try:
+                    duracao = int(duracao)
+                except:
+                    print(f"Linha inválida ignorada: {linha}")
+                    continue
+
+                biblioteca[titulo] = (artista, duracao)
+                ordem_musicas.append(titulo)
+
+    except:
+        pass
 
 app = ttk.Window(title="NepsMusic Player", themename="darkly")
 
@@ -60,8 +68,7 @@ def atualizar_fila():
     list_fila.delete(0, "end")
     temp = []
     while not fila.empty():
-        m = fila.get()
-        temp.append(m)
+        temp.append(fila.get())
     for m in temp:
         list_fila.insert("end", m)
         fila.put(m)
@@ -84,8 +91,10 @@ def atualizar_status():
 
 def proximo():
     global musica_atual, indice_atual
+
     if musica_atual:
         historico.put(musica_atual)
+
     if not fila.empty():
         musica_atual = fila.get()
     else:
@@ -94,27 +103,27 @@ def proximo():
             musica_atual = ordem_musicas[indice_atual]
         else:
             musica_atual = None
+
     atualizar_status()
     atualizar_fila()
     atualizar_historico()
 
 def voltar():
     global musica_atual
+
     if not historico.empty():
         atual = musica_atual
         musica_atual = historico.get()
         if atual:
             historico.put(atual)
+
     atualizar_status()
     atualizar_historico()
     atualizar_fila()
 
 def tocar_pausar():
     global estado
-    if estado == "Tocando":
-        estado = "Pausado"
-    else:
-        estado = "Tocando"
+    estado = "Tocando" if estado == "Pausado" else "Pausado"
     atualizar_status()
 
 def adicionar_fila(event=None):
@@ -122,9 +131,9 @@ def adicionar_fila(event=None):
     if not selecionado:
         return
     valores = tree_biblioteca.item(selecionado)["values"]
-    titulo = valores[0]
-    fila.put(titulo)
-    atualizar_fila()
+    if valores:
+        fila.put(valores[0])
+        atualizar_fila()
 
 frame_botoes = ttk.Frame(app)
 frame_botoes.pack(pady=10)
