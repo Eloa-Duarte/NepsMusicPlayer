@@ -110,9 +110,10 @@ def voltar():
     global musica_atual
 
     if not historico.empty():
+        anterior = historico.get()
         if musica_atual:
             historico.put(musica_atual)
-        musica_atual = historico.get()
+        musica_atual = anterior
 
     sincronizar_indice()
     atualizar_status()
